@@ -5,6 +5,7 @@ import 'package:mac_store_app/controller/subcategory_controller.dart';
 import 'package:mac_store_app/models/category.dart';
 import 'package:mac_store_app/models/product.dart';
 import 'package:mac_store_app/models/subcategory.dart';
+import 'package:mac_store_app/views/screens/detail/screens/subcategory_product_screen.dart';
 import 'package:mac_store_app/views/screens/detail/screens/widgets/inner_banner_widget.dart';
 import 'package:mac_store_app/views/screens/detail/screens/widgets/inner_header_widget.dart';
 import 'package:mac_store_app/views/screens/detail/screens/widgets/subcategory_tile_widget.dart';
@@ -73,34 +74,47 @@ class _InnerCategoryContentWidgetState
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Column(
-                      children: List.generate(
-                        (subcategories.length / 3).ceil(),
-                        (setIndex) {
-                          final start = setIndex * 3;
-                          final end = (setIndex + 1) * 3;
-                          return Padding(
-                            padding: EdgeInsets.all(8.9),
-                            child: Row(
-                              children:
-                                  subcategories
-                                      .sublist(
-                                        start,
-                                        end > subcategories.length
-                                            ? subcategories.length
-                                            : end,
-                                      )
-                                      .map(
-                                        (subcategory) => SubcategoryTileWidget(
+                      children: List.generate((subcategories.length / 3).ceil(), (
+                        setIndex,
+                      ) {
+                        final start = setIndex * 3;
+                        final end = (setIndex + 1) * 3;
+                        return Padding(
+                          padding: EdgeInsets.all(8.9),
+                          child: Row(
+                            children:
+                                subcategories
+                                    .sublist(
+                                      start,
+                                      end > subcategories.length
+                                          ? subcategories.length
+                                          : end,
+                                    )
+                                    .map(
+                                      (subcategory) => GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) {
+                                                return SubcategoryProductScreen(
+                                                  subcategory: subcategory,
+                                                );
+                                              },
+                                            ),
+                                          );
+                                        },
+                                        child: SubcategoryTileWidget(
                                           image: subcategory.image,
                                           title:
                                               subcategory.subCategoryName ?? '',
                                         ),
-                                      )
-                                      .toList(),
-                            ),
-                          );
-                        },
-                      ),
+                                      ),
+                                    )
+                                    .toList(),
+                          ),
+                        );
+                      }),
                     ),
                   );
                 }

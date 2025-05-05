@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mac_store_app/provider/cart_provider.dart';
 import 'package:mac_store_app/views/main_screen.dart';
-import 'package:mac_store_app/views/screens/checkout_screen.dart';
+import 'package:mac_store_app/views/screens/detail/screens/checkout_screen.dart';
 
 class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});

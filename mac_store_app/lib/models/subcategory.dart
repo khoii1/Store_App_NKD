@@ -5,7 +5,7 @@ class Subcategory {
   final String categoryId;
   final String categoryName;
   final String image;
-  final String? subCategoryName;
+  final String subCategoryName;
 
   Subcategory({
     required this.id,
