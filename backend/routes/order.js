@@ -1,6 +1,7 @@
 const express = require('express');
 const orderRouter = express.Router();
 const Order = require('../models/order');
+const stripe = require('stripe')("pk_test_51REnd02SARR8HnMuw8IDMjf88GEu7ETbpKVmMnBa6cV5Qs4FVIOf4lbG0xVLTqu7gUEPQRVe9s6BFClrP6lWe5cX00dQ9kXOwh");
 const { auth, vendorAuth } = require('../middleware/auth');
 
 //Post route for creating orders
@@ -19,6 +20,55 @@ orderRouter.post('/api/orders', auth, async (req, res) => {
         res.status(500).json({ error: error.message }); // Use the 'error' object from the catch block
     }
 });
+
+
+//payment api
+orderRouter.post('/api/payment', async (req, res) => {
+    try {
+        const { orderId, paymentMethodId, currency = 'usd' } = req.body;
+        //validate the presence of the required fields
+        if (!orderId || !paymentMethodId || !currency) {
+            return res.status(400).json({ msg: "Missing required fields" });
+        }
+
+        //Query for the order by orderId
+        const order = await Order.findById(orderId);
+        if (!order) {
+            console.log("order not found", orderId);
+            return res.status(404).json({ msg: "Order not found" });
+        }
+        //calculate the total amount(price * quantity)
+        const totalAmount = order.productPrice * order.quantity;
+
+        //Ensure the amount is at least $0.50 USD or its equivalent
+        const minimumAmount = 0.50;
+        if (totalAmount < minimumAmount) {
+            return res.status(400).json({ error: "Amount must be at least $0.50 USD" });
+        }
+        //convert total amount to cents(Stripe requires the amount in cents)
+        const amountInCents = Math.round(totalAmount * 100);
+
+        //Now create the Payment intent with the correct amount
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: amountInCents,
+            currency: currency,
+            payment_method: paymentMethodId,
+            automatic_payment_methods: { enabled: true },
+        });
+        console.log("payment Status", paymentIntent.status);
+
+        return res.json({
+            status: "success",
+            paymentIntentId: paymentIntent.id,
+            amount: paymentIntent.amount / 100,
+            currency: paymentIntent.currency,
+        });
+
+    } catch (error) {
+        return res.status(500).json({ error: e.message });
+    }
+});
+
 
 // GET route để lấy danh sách đơn hàng theo ID người mua
 orderRouter.get('/api/orders/:buyerId', auth, async (req, res) => {
